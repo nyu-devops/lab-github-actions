@@ -16,7 +16,8 @@
 		"donjayamanne.githistory",
 		"redhat.vscode-yaml",
 		"bbenoist.vagrant",
-		"sonarsource.sonarlint-vscode"
+		"sonarsource.sonarlint-vscode",
+		"GitHub.vscode-pull-request-github"
 	],
 	"forwardPorts": [8080],
 	//"postCreateCommand": "sudo pip install -U pip wheel && sudo pip install -r requirements.txt"

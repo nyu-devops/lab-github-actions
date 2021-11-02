@@ -7,7 +7,9 @@ Test cases can be run with the following:
 """
 import os
 import logging
+from unittest.mock import patch
 from unittest import TestCase
+from redis.exceptions import ConnectionError
 from service import status  # HTTP Status Codes
 from service.log_handler import initialize_logging
 from service.routes import app, reset_counters
@@ -125,3 +127,21 @@ class CounterTest(TestCase):
         name = "foo"
         resp = self.app.put(f"/counters/{name}")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_bad_connection_create(self):
+        """ Test a no database connection for create """
+        # make a call to fire first requeest trigger
+        resp = self.app.get(f"/counters")    
+        with patch('service.routes.counter.get') as connection_error_mock:
+            connection_error_mock.side_effect = ConnectionError()
+            resp = self.app.post(f"/counters/foo")
+            self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    def test_bad_connection_list(self):
+        """ Test a no database connection for list """
+        # make a call to fire first requeest trigger
+        resp = self.app.put(f"/counters/foo")    
+        with patch('service.routes.counter.keys') as connection_error_mock:
+            connection_error_mock.side_effect = ConnectionError()
+            resp = self.app.get(f"/counters")
+            self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)            
