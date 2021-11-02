@@ -21,21 +21,12 @@ Module for Hit Counter Service Routes
 import os
 from redis import Redis
 from flask import jsonify, url_for, abort
-from werkzeug.exceptions import NotFound
 from redis.exceptions import ConnectionError
 from . import status
 from service import app
 
 # Connext to the Redis database
-counter = None
-if 'DATABASE_URI' in os.environ:
-    DATABASE_URI = os.getenv("DATABASE_URI")
-    counter = Redis.from_url(DATABASE_URI, encoding="utf-8", decode_responses=True)
-else:
-    REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
-    REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
-    counter = Redis(host=REDIS_HOST, port=REDIS_PORT, encoding="utf-8", decode_responses=True)
-
+counter: Redis = None
 
 ############################################################
 # Index page
@@ -57,9 +48,13 @@ def index():
 @app.route("/counters", methods=["GET"])
 def list_counters():
     app.logger.info("Request to list all counters...")
-    counters = [
-        dict(name=key, counter=int(counter.get(key))) for key in counter.keys("*")
-    ]
+    try:
+        counters = [
+            dict(name=key, counter=int(counter.get(key))) for key in counter.keys("*")
+        ]
+    except ConnectionError as error:
+        abort(status.HTTP_503_SERVICE_UNAVAILABLE, str(error))
+
     return jsonify(counters)
 
 
@@ -69,11 +64,14 @@ def list_counters():
 @app.route("/counters/<name>", methods=["POST"])
 def create_counters(name):
     app.logger.info("Request to Create counter...")
-    count = counter.get(name)
-    if count is not None:
-        return jsonify(code=409, error="Counter already exists"), 409
+    try:
+        count = counter.get(name)
+        if count is not None:
+            abort(status.HTTP_409_CONFLICT, f"Counter [{name}] already exists")
 
-    counter.set(name, 0)
+        counter.set(name, 0)
+    except ConnectionError as error:
+        abort(status.HTTP_503_SERVICE_UNAVAILABLE, str(error))
 
     location_url = url_for("read_counters", name=name, _external=True)
     return (
@@ -91,7 +89,7 @@ def read_counters(name):
     app.logger.info("Request to Read counter...")
     count = counter.get(name)
     if count is None:
-         raise NotFound(f"Counter {name} does not exist")
+        abort(status.HTTP_404_NOT_FOUND, f"Counter [{name}] does not exist")
 
     return jsonify(name=name, counter=int(count))
 
@@ -104,7 +102,7 @@ def update_counters(name):
     app.logger.info("Request to Update counter...")
     count = counter.get(name)
     if count is None:
-        raise NotFound(f"Counter {name} does not exist")
+        abort(status.HTTP_404_NOT_FOUND, f"Counter [{name}] does not exist")
 
     count = counter.incr(name)
     return jsonify(name=name, counter=count)
@@ -124,9 +122,24 @@ def delete_counters(name):
 
 
 ############################################################
-# Utility for testing
+# U T I L I T Y   F U N C T I O N S
 ############################################################
 def reset_counters():
     global counter
-    if app.testing:
+    if app.testing and counter:
         counter.flushall()
+
+@app.before_first_request
+def init_db():
+    global counter
+    app.logger.info("Initializing Redis database connection")
+    try:
+        if 'DATABASE_URI' in os.environ:
+            DATABASE_URI = os.getenv("DATABASE_URI")
+            counter = Redis.from_url(DATABASE_URI, encoding="utf-8", decode_responses=True)
+        else:
+            REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+            REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+            counter = Redis(host=REDIS_HOST, port=REDIS_PORT, encoding="utf-8", decode_responses=True)
+    except ConnectionError as error:
+        abort(status.HTTP_503_SERVICE_UNAVAILABLE, str(error))
