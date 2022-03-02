@@ -19,7 +19,7 @@ Log Handler module
 """
 
 import logging
-from . import app
+from service import app
 
 ############################################################
 # set up logging for Flask applications

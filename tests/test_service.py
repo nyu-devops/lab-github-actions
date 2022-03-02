@@ -10,8 +10,8 @@ import logging
 from unittest.mock import patch
 from unittest import TestCase
 from redis.exceptions import ConnectionError
-from service import status  # HTTP Status Codes
-from service.log_handler import initialize_logging
+from service.common import status  # HTTP Status Codes
+from service.common import log_handler
 from service.routes import app, reset_counters
 
 
@@ -25,7 +25,7 @@ class CounterTest(TestCase):
     def setUpClass(cls):
         """ This runs once before the entire test suite """
         app.testing = True
-        initialize_logging(logging.CRITICAL)
+        log_handler.initialize_logging(logging.CRITICAL)
 
     @classmethod
     def tearDownClass(cls):
