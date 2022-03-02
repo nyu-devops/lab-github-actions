@@ -5,13 +5,12 @@ Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
   coverage report -m
 """
-import os
 import logging
 from unittest.mock import patch
 from unittest import TestCase
 from redis.exceptions import ConnectionError
-from service import status  # HTTP Status Codes
-from service.log_handler import initialize_logging
+from service.common import status  # HTTP Status Codes
+from service.common import log_handler
 from service.routes import app, reset_counters
 
 
@@ -25,7 +24,7 @@ class CounterTest(TestCase):
     def setUpClass(cls):
         """ This runs once before the entire test suite """
         app.testing = True
-        initialize_logging(logging.CRITICAL)
+        log_handler.initialize_logging(logging.CRITICAL)
 
     @classmethod
     def tearDownClass(cls):
@@ -42,7 +41,7 @@ class CounterTest(TestCase):
         pass
 
 ######################################################################
-#  T E S T   C A S E S 
+#  T E S T   C A S E S
 ######################################################################
 
     def test_index(self):
@@ -112,7 +111,7 @@ class CounterTest(TestCase):
 
     def test_method_not_allowed(self):
         """ Test method not allowed """
-        resp = self.app.post(f"/counters")
+        resp = self.app.post("/counters")
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_counter_already_exists(self):
@@ -130,18 +129,18 @@ class CounterTest(TestCase):
 
     def test_bad_connection_create(self):
         """ Test a no database connection for create """
-        # make a call to fire first requeest trigger
-        resp = self.app.get(f"/counters")    
+        # make a call to fire first request trigger
+        resp = self.app.get("/counters")
         with patch('service.routes.counter.get') as connection_error_mock:
             connection_error_mock.side_effect = ConnectionError()
-            resp = self.app.post(f"/counters/foo")
+            resp = self.app.post("/counters/foo")
             self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
 
     def test_bad_connection_list(self):
         """ Test a no database connection for list """
-        # make a call to fire first requeest trigger
-        resp = self.app.put(f"/counters/foo")    
+        # make a call to fire first request trigger
+        resp = self.app.put("/counters/foo")
         with patch('service.routes.counter.keys') as connection_error_mock:
             connection_error_mock.side_effect = ConnectionError()
-            resp = self.app.get(f"/counters")
-            self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)            
+            resp = self.app.get("/counters")
+            self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
