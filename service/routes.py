@@ -20,19 +20,22 @@ Module for Hit Counter Service Routes
 
 import os
 from redis import Redis
+from redis.exceptions import ConnectionError as RedisConnectionError
 from flask import jsonify, url_for, abort
-from redis.exceptions import ConnectionError
 from service.common import status
 from service import app
 
 # Connext to the Redis database
+# pylint: disable=invalid-name, global-variable-not-assigned
 counter: Redis = None
+
 
 ############################################################
 # Index page
 ############################################################
 @app.route("/")
 def index():
+    """Root URL"""
     app.logger.info("Request for Base URL")
     return jsonify(
         status=status.HTTP_200_OK,
@@ -47,12 +50,13 @@ def index():
 ############################################################
 @app.route("/counters", methods=["GET"])
 def list_counters():
+    """List counters"""
     app.logger.info("Request to list all counters...")
     try:
         counters = [
             dict(name=key, counter=int(counter.get(key))) for key in counter.keys("*")
         ]
-    except ConnectionError as error:
+    except RedisConnectionError as error:
         abort(status.HTTP_503_SERVICE_UNAVAILABLE, str(error))
 
     return jsonify(counters)
@@ -63,6 +67,7 @@ def list_counters():
 ############################################################
 @app.route("/counters/<name>", methods=["POST"])
 def create_counters(name):
+    """Create counters"""
     app.logger.info("Request to Create counter...")
     try:
         count = counter.get(name)
@@ -70,7 +75,7 @@ def create_counters(name):
             abort(status.HTTP_409_CONFLICT, f"Counter [{name}] already exists")
 
         counter.set(name, 0)
-    except ConnectionError as error:
+    except RedisConnectionError as error:
         abort(status.HTTP_503_SERVICE_UNAVAILABLE, str(error))
 
     location_url = url_for("read_counters", name=name, _external=True)
@@ -86,6 +91,7 @@ def create_counters(name):
 ############################################################
 @app.route("/counters/<name>", methods=["GET"])
 def read_counters(name):
+    """Read counters"""
     app.logger.info("Request to Read counter...")
     count = counter.get(name)
     if count is None:
@@ -99,6 +105,7 @@ def read_counters(name):
 ############################################################
 @app.route("/counters/<name>", methods=["PUT"])
 def update_counters(name):
+    """Update counters"""
     app.logger.info("Request to Update counter...")
     count = counter.get(name)
     if count is None:
@@ -113,6 +120,7 @@ def update_counters(name):
 ############################################################
 @app.route("/counters/<name>", methods=["DELETE"])
 def delete_counters(name):
+    """Delete counters"""
     app.logger.info("Request to Delete counter...")
     count = counter.get(name)
     if count is not None:
@@ -125,21 +133,31 @@ def delete_counters(name):
 # U T I L I T Y   F U N C T I O N S
 ############################################################
 def reset_counters():
+    """Resets all counters"""
     global counter
     if app.testing and counter:
         counter.flushall()
 
+
 @app.before_first_request
 def init_db():
-    global counter
+    """Initializes the database"""
+    global counter  # pylint: disable=global-statement
     app.logger.info("Initializing Redis database connection")
     try:
-        if 'DATABASE_URI' in os.environ:
+        if "DATABASE_URI" in os.environ:
             DATABASE_URI = os.getenv("DATABASE_URI")
-            counter = Redis.from_url(DATABASE_URI, encoding="utf-8", decode_responses=True)
+            counter = Redis.from_url(
+                DATABASE_URI, encoding="utf-8", decode_responses=True
+            )
         else:
             REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
             REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
-            counter = Redis(host=REDIS_HOST, port=REDIS_PORT, encoding="utf-8", decode_responses=True)
-    except ConnectionError as error:
+            counter = Redis(
+                host=REDIS_HOST,
+                port=REDIS_PORT,
+                encoding="utf-8",
+                decode_responses=True,
+            )
+    except RedisConnectionError as error:
         abort(status.HTTP_503_SERVICE_UNAVAILABLE, str(error))

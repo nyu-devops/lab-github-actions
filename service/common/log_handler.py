@@ -14,17 +14,18 @@
 # limitations under the License.
 ######################################################################
 
-""" 
+"""
 Log Handler module
 """
 
 import logging
 from service import app
 
+
 ############################################################
 # set up logging for Flask applications
 ############################################################
-def initialize_logging(log_level=None):    
+def initialize_logging(log_level=None):
     gunicorn_logger = logging.getLogger("gunicorn.error")
     app.logger.handlers = gunicorn_logger.handlers
     if log_level:
@@ -39,4 +40,3 @@ def initialize_logging(log_level=None):
     for handler in app.logger.handlers:
         handler.setFormatter(formatter)
     app.logger.info("Logging handler established")
-

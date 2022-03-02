@@ -19,6 +19,7 @@ from flask import jsonify
 from service import app
 from . import status
 
+
 ######################################################################
 # Error Handlers
 ######################################################################
@@ -35,7 +36,7 @@ def not_found(error):
 
 @app.errorhandler(status.HTTP_405_METHOD_NOT_ALLOWED)
 def method_not_supported(error):
-    """Handles unsuppoted HTTP methods with 405_METHOD_NOT_SUPPORTED"""
+    """Handles unsupported HTTP methods with 405_METHOD_NOT_SUPPORTED"""
     message = str(error)
     app.logger.warning(message)
     return (
@@ -62,9 +63,10 @@ def internal_server_error(error):
         status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
 
+
 @app.errorhandler(status.HTTP_503_SERVICE_UNAVAILABLE)
-def method_not_supported(error):
-    """Handles unsuppoted HTTP methods with HTTP_503_SERVICE_UNAVAILABLE"""
+def service_unavailable(error):
+    """Handles service not available HTTP methods with HTTP_503_SERVICE_UNAVAILABLE"""
     message = str(error)
     app.logger.warning(message)
     return (
