@@ -9,8 +9,7 @@ import logging
 from unittest.mock import patch
 from unittest import TestCase
 from redis.exceptions import ConnectionError
-from service.common import status  # HTTP Status Codes
-from service.common import log_handler
+from service.utils import log_handler, status  # HTTP Status Codes
 from service.routes import app, reset_counters
 
 
@@ -45,12 +44,12 @@ class CounterTest(TestCase):
 ######################################################################
 
     def test_index(self):
-        """ Test index call """
+        """ It should call the home page """
         resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_create_counters(self):
-        """ Test Create a counter """
+        """ It should Create a counter """
         name = "foo"
         resp = self.app.post(f"/counters/{name}")
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
@@ -59,7 +58,7 @@ class CounterTest(TestCase):
         self.assertEqual(data["counter"], 0)
 
     def test_list_counters(self):
-        """ Test List counters """
+        """ It should List counters """
         resp = self.app.get("/counters")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
@@ -74,7 +73,7 @@ class CounterTest(TestCase):
         self.assertEqual(len(data), 3)
 
     def test_read_counters(self):
-        """ Test Read a counter """
+        """ It should Read a counter """
         name = "foo"
         self.test_create_counters()
         resp = self.app.get(f"/counters/{name}")
@@ -84,7 +83,7 @@ class CounterTest(TestCase):
         self.assertEqual(data["counter"], 0)
 
     def test_update_counters(self):
-        """ Test Update a counter """
+        """ It should Update a counter """
         name = "foo"
         self.test_create_counters()
         resp = self.app.get(f"/counters/{name}")
@@ -101,7 +100,7 @@ class CounterTest(TestCase):
         self.assertEqual(data["counter"], 1)
 
     def test_delete_counters(self):
-        """ Test Delete a counter """
+        """ It should Delete a counter """
         name = "foo"
         self.test_create_counters()
         resp = self.app.delete(f"/counters/{name}")
@@ -110,25 +109,25 @@ class CounterTest(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_method_not_allowed(self):
-        """ Test method not allowed """
+        """ It should not allow method """
         resp = self.app.post("/counters")
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_counter_already_exists(self):
-        """ Test counter already exists """
+        """ It should report counter already exists """
         name = "foo"
         self.test_create_counters()
         resp = self.app.post(f"/counters/{name}")
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
 
     def test_update_not_found(self):
-        """ Test update not found """
+        """ It should not update counter not found """
         name = "foo"
         resp = self.app.put(f"/counters/{name}")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_bad_connection_create(self):
-        """ Test a no database connection for create """
+        """ It should fail with no database connection for create """
         # make a call to fire first request trigger
         resp = self.app.get("/counters")
         with patch('service.routes.counter.get') as connection_error_mock:
@@ -137,7 +136,7 @@ class CounterTest(TestCase):
             self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
 
     def test_bad_connection_list(self):
-        """ Test a no database connection for list """
+        """ It should fail with no database connection for list """
         # make a call to fire first request trigger
         resp = self.app.put("/counters/foo")
         with patch('service.routes.counter.keys') as connection_error_mock:
