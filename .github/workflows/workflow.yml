@@ -49,8 +49,8 @@ jobs:
 
       # Uncomment the following 2 lines during hands-on lab
       
-      # - name: Upload code coverage
-      #   uses: codecov/codecov-action@v2
-      #   with:
-      #     version: "v0.1.13"      
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v2
+        with:
+          version: "v0.1.13"      
   
