@@ -16,50 +16,9 @@ To complete this lab you will need to Fork this repo because you need to make a 
 
 You can read about why in my article [Creating Reproducible Development Environments](https://medium.com/nerd-for-tech/creating-reproducible-development-environments-fac8d6471f35).
 
-### Prerequisite Installation for Intel Mac & PC
+### Prerequisite Installation
 
-The easiest way to use this lab is with **Vagrant** and **VirtualBox**. if you don't have this software the first step is down download and install it.
-
-Download [VirtualBox](https://www.virtualbox.org/)
-
-Download [Vagrant](https://www.vagrantup.com/)
-
-Then all you have to do is clone this repo and invoke vagrant:
-
-```bash
-    git clone https://github.com/nyu-devops/lab-github-actions.git
-    cd lab-github-actions
-    vagrant up
-    vagrant ssh
-    cd /vagrant
-    honcho start
-```
-
-You can also automatically set the environment variable FLASK_APP using a `.env` file.
-There is an example in this repo called `dot-env-example` that you can simply copy.
-
-```sh
-    cp dot-env-example .env
-```
-
-The `.env` file will be loaded when you do `flask run` so that you don't have to specify
-any environment variables.
-
-### Alternate for M1 Macs using Vagrant and Docker
-
-You can also use [Docker Desktop for Apple Silicon](https://docs.docker.com/docker-for-mac/apple-silicon/) as a provider instead of VirtualBox. This is useful for owners of Apple M1 Silicon Macs which cannot run VirtualBox because they have a CPU based on ARM architecture instead of Intel.
-
-Just add `--provider docker` to the `vagrant up` command like this:
-
-```sh
-vagrant up --provider docker
-```
-
-This will use a Docker container instead of a Virtual Machine (VM). Of course Intel Macs and Windows PCs can use this as well. Just install the appropreate Docker Desktopo build.
-
-### Alternate install using VSCode and Docker
-
-You can also develop in Docker containers using **Visual Studio Code**. This project contains a `.devcontainer` folder that will set up a Docker environment in VSCode for you. You will need the following:
+All of our development is done in Docker containers using **Visual Studio Code**. This project contains a `.devcontainer` folder that will set up a Docker environment in VSCode for you. You will need the following:
 
 - Docker Desktop for [Mac](https://docs.docker.com/docker-for-mac/install/) or [Windows](https://docs.docker.com/docker-for-windows/install/)
 - Microsoft Visual Studio Code ([VSCode](https://code.visualstudio.com/download))
@@ -81,7 +40,7 @@ If it does not automatically prompt you to open the project in a container, you 
 
 ### Alternate manual install using local Python
 
-This option is not recommended because developing natively on your local computer does ensure that the code will work on anyone elses computer or in production.  I strongly recommend that you us one of thee reproducible development environments above but if you have Python 3 installed on your computer you can make a virtual environment and run the code locally with:
+This option is not recommended because developing natively on your local computer does ensure that the code will work on anyone elses computer or in production.  I strongly recommend that you Docker with Visual Studio Code to create a reproducible development environment, but if you cannot for some reason, and have Python 3 installed on your computer, you can make a Python virtual environment and run the code locally with:
 
 ```bash
     python3 -m venv venv
@@ -120,7 +79,13 @@ Nose is configured to automatically include the flags `--with-spec --spec-color 
 ```text
     * routes.py -- the main Service using Python Flask and Redis
     * test_service.py -- test cases using unittest
-    * .github/workfloows/ci.yml -- the GitHub Actions file that automates testing
+    * .github/workflows/workflow.yml -- the GitHub Actions file that automates testing
 ````
 
-This repository is part of the NYU class CSCI-GA.2810-001: DevOps and Agile Methodologies taught by John Rofrano, Adjunct Instructor, NYU Courant Institute of Mathematical Sciences, Graduate Division, Computer Science, and NYU Stern School of Business.
+## License
+
+Copyright (c) John Rofrano. All rights reserved.
+
+Licensed under the Apache License. See [LICENSE](LICENSE)
+
+This repository is part of the NYU masters class: **CSCI-GA.2820-001 DevOps and Agile Methodologies** conceived, created, and taught by [John Rofrano Adjunct Instructor](https://cs.nyu.edu/~rofrano/), NYU Courant Institute of Mathematical Sciences, Graduate Division, Computer Science, and NYU Stern School of Business.
