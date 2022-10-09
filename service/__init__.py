@@ -1,4 +1,4 @@
-# Copyright 2016, 2021 John J. Rofrano. All Rights Reserved.
+# Copyright 2016, 2020 John J. Rofrano. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,35 +13,31 @@
 # limitations under the License.
 
 """
-Package: service
 Package for the application models and service routes
-This module creates and configures the Flask app and sets up the logging
-and SQL database
 """
+import os
 from flask import Flask
+from service.common import log_handlers
 
-# Create Flask application
+# NOTE: Do not change the order of this code
+# The Flask app must be created
+# BEFORE you import modules that depend on it !!!
+
+DATABASE_URI = os.getenv("DATABASE_URI", "redis://:@localhost:6379/0")
+
+# Create the Flask aoo
 app = Flask(__name__)
-# app.config.from_object("config")
 
-# Import the routes AFTER the Flask app is created
-# pylint: disable=wrong-import-position, cyclic-import
-from service import routes  # noqa: F401, E402
-from service.common import log_handler  # noqa: F401, E402
+# Import the routes After the Flask app is created
+# pylint: disable=wrong-import-position, wrong-import-order, cyclic-import
+from service import routes, models  # noqa: F401, E402
+from service.common import error_handlers  # noqa: F401, E402
 
 # Set up logging for production
-print(f"Setting up logging for {__name__}...")
-log_handler.initialize_logging()
+log_handlers.init_logging(app, "gunicorn.error")
 
 app.logger.info(70 * "*")
 app.logger.info("  H I T   C O U N T E R   S E R V I C E  ".center(70, "*"))
 app.logger.info(70 * "*")
-
-# try:
-#     models.init_db(app)  # make our sqlalchemy tables
-# except Exception as error:
-#     app.logger.critical("%s: Cannot continue", error)
-#     # gunicorn requires exit code 4 to stop spawning workers when they die
-#     sys.exit(4)
 
 app.logger.info("Service initialized!")
