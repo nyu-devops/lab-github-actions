@@ -26,8 +26,8 @@ app = Flask(__name__)
 
 # Import the routes AFTER the Flask app is created
 # pylint: disable=wrong-import-position, cyclic-import
-from service import routes
-from service.utils import log_handler
+from service import routes  # noqa: F401, E402
+from service.common import log_handler  # noqa: F401, E402
 
 # Set up logging for production
 print(f"Setting up logging for {__name__}...")

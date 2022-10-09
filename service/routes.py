@@ -22,7 +22,7 @@ import os
 from redis import Redis
 from redis.exceptions import ConnectionError as RedisConnectionError
 from flask import jsonify, url_for, abort
-from service.utils import status
+from service.common import status
 from service import app
 
 # Connext to the Redis database

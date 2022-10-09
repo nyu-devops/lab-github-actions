@@ -8,8 +8,8 @@ Test cases can be run with the following:
 import logging
 from unittest.mock import patch
 from unittest import TestCase
-from redis.exceptions import ConnectionError
-from service.utils import log_handler, status  # HTTP Status Codes
+from redis.exceptions import ConnectionError as RedisConnectionError
+from service.common import log_handler, status  # HTTP Status Codes
 from service.routes import app, reset_counters
 
 
@@ -28,7 +28,6 @@ class CounterTest(TestCase):
     @classmethod
     def tearDownClass(cls):
         """ This runs once after the entire test suite """
-        pass
 
     def setUp(self):
         """ This runs before each test """
@@ -37,7 +36,6 @@ class CounterTest(TestCase):
 
     def tearDown(self):
         """ This runs after each test """
-        pass
 
 ######################################################################
 #  T E S T   C A S E S
@@ -131,7 +129,7 @@ class CounterTest(TestCase):
         # make a call to fire first request trigger
         resp = self.app.get("/counters")
         with patch('service.routes.counter.get') as connection_error_mock:
-            connection_error_mock.side_effect = ConnectionError()
+            connection_error_mock.side_effect = RedisConnectionError()
             resp = self.app.post("/counters/foo")
             self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
 
@@ -140,6 +138,6 @@ class CounterTest(TestCase):
         # make a call to fire first request trigger
         resp = self.app.put("/counters/foo")
         with patch('service.routes.counter.keys') as connection_error_mock:
-            connection_error_mock.side_effect = ConnectionError()
+            connection_error_mock.side_effect = RedisConnectionError()
             resp = self.app.get("/counters")
             self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
