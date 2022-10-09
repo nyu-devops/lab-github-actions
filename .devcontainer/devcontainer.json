@@ -8,6 +8,7 @@
 		"VisualStudioExptTeam.vscodeintellicode",
 		"ms-python.python",
 		"ms-python.vscode-pylance",
+        "ms-python.pylint",
 		"alexkrechik.cucumberautocomplete",
 		"cstrap.flask-snippets",
 		"yzhang.markdown-all-in-one",
@@ -20,6 +21,7 @@
 		"LittleFoxTeam.vscode-python-test-adapter",
 		"njpwerner.autodocstring",
 		"redhat.vscode-yaml",
+		"rangav.vscode-thunder-client",			
 		"streetsidesoftware.code-spell-checker",
 		"wholroyd.jinja",
 		"bbenoist.vagrant"
