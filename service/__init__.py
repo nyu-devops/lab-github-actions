@@ -1,4 +1,4 @@
-# Copyright 2016, 2020 John J. Rofrano. All Rights Reserved.
+# Copyright 2016, 2023 John J. Rofrano. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,29 +15,48 @@
 """
 Package for the application models and service routes
 """
-import os
 from flask import Flask
+from flask_redis import FlaskRedis
+from service import config
 from service.common import log_handlers
 
-# NOTE: Do not change the order of this code
-# The Flask app must be created
-# BEFORE you import modules that depend on it !!!
+# Globally accessible libraries
+# redis = FlaskRedis()
 
-DATABASE_URI = os.getenv("DATABASE_URI", "redis://:@localhost:6379/0")
 
-# Create the Flask aoo
-app = Flask(__name__)
+############################################################
+# Initialize the Flask instance
+############################################################
+def init_app():
+    """Initialize the core application."""
+    app = Flask(__name__)
+    app.config.from_object(config)
 
-# Import the routes After the Flask app is created
-# pylint: disable=wrong-import-position, wrong-import-order, cyclic-import
-from service import routes, models  # noqa: F401, E402
-from service.common import error_handlers  # noqa: F401, E402
+    # Initialize Plugins
+    # redis.init_app(app)
 
-# Set up logging for production
-log_handlers.init_logging(app, "gunicorn.error")
+    with app.app_context():
+        # Include our Routes
 
-app.logger.info(70 * "*")
-app.logger.info("  H I T   C O U N T E R   S E R V I C E  ".center(70, "*"))
-app.logger.info(70 * "*")
+        # pylint: disable=import-outside-toplevel, unused-import
+        from service import routes, models
+        from service.common import error_handlers
 
-app.logger.info("Service initialized!")
+        # Set up logging for production
+        log_handlers.init_logging(app, "gunicorn.error")
+
+        app.logger.info(70 * "*")
+        app.logger.info("  H I T   C O U N T E R   S E R V I C E  ".center(70, "*"))
+        app.logger.info(70 * "*")
+
+        app.logger.info("Service initialized!")
+
+        # Initialize the database
+        try:
+            app.logger.info("Initializing the Redis database")
+            models.Counter.connect(app.config['DATABASE_URI'])
+            app.logger.info("Connected!")
+        except models.DatabaseConnectionError as err:
+            app.logger.error(str(err))
+
+        return app

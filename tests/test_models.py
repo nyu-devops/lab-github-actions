@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016, 2022 John J. Rofrano. All Rights Reserved.
+# Copyright 2016, 2023 John J. Rofrano. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=disallowed-name
 """
 Test cases for Counter Model
 
@@ -24,7 +25,7 @@ import os
 import logging
 from unittest import TestCase
 from unittest.mock import patch
-from redis.exceptions import ConnectionError
+from redis.exceptions import ConnectionError as RedisConnectionError
 from service.models import Counter, DatabaseConnectionError
 
 DATABASE_URI = os.getenv("DATABASE_URI", "redis://:@localhost:6379/0")
@@ -52,7 +53,6 @@ class CounterTests(TestCase):
     def tearDown(self):
         """This runs after each test"""
         # Counter.redis.flushall()
-        pass
 
     ######################################################################
     #  T E S T   C A S E S
@@ -137,7 +137,7 @@ class CounterTests(TestCase):
     @patch("redis.Redis.ping")
     def test_no_connection(self, ping_mock):
         """It should Handle a failed connection"""
-        ping_mock.side_effect = ConnectionError()
+        ping_mock.side_effect = RedisConnectionError()
         self.assertRaises(DatabaseConnectionError, self.counter.connect, DATABASE_URI)
 
     @patch.dict(os.environ, {"DATABASE_URI": ""})
