@@ -56,7 +56,7 @@ docker run -d --name redis -p 6379:6379 -v redis:/data redis:alpine
 
 This will run Redis on Alpine and have it forward port `6379` so that your application and communicate with it.
 
-You can now run `nosetests` to run the TDD tests locally.
+You can now run `make test` to run the TDD tests locally.
 
 You can also test the application manually by running it with:
 
@@ -66,25 +66,27 @@ honcho start
 
 ## Manually running the Tests
 
-Run the tests using `nosetests` and `coverage`
+Run the tests using `green` and `coverage`
 
 ```bash
-nosetests
+make test
 ```
 
-Nose is configured to automatically include the flags `--with-spec --spec-color --with-coverage` so that red-green-refactor is meaningful. If you are in a command shell that supports colors, passing tests will be green while failing tests will be red.
+Green is configured to automatically include the flags so that red-green-refactor is meaningful. If you are in a command shell that supports colors, passing tests will be green while failing tests will be red.
 
 ## What's featured in the project?
 
 ```text
+    * models.py -- the database model that uses Redis
     * routes.py -- the main Service using Python Flask and Redis
-    * test_service.py -- test cases using unittest
+    * test_models.py -- test cases for the model using PyUnit (unittest)
+    * test_service.py -- test cases for the service using PyUnit (unittest)
     * .github/workflows/workflow.yml -- the GitHub Actions file that automates testing
 ````
 
 ## License
 
-Copyright (c) John Rofrano. All rights reserved.
+Copyright (c) 2021, 2023 John Rofrano. All rights reserved.
 
 Licensed under the Apache License. See [LICENSE](LICENSE)
 

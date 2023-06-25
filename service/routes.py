@@ -1,5 +1,5 @@
 ######################################################################
-# Copyright 2016, 2022 John J. Rofrano. All Rights Reserved.
+# Copyright 2016, 2023 John J. Rofrano. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,15 +14,16 @@
 # limitations under the License.
 ######################################################################
 
+# pylint: disable=cyclic-import
 """
 Module for Hit Counter Service Routes
 """
 
 import os
 from flask import jsonify, abort, url_for
+from flask import current_app as app
 from service.common import status  # HTTP Status Codes
-from service import app, DATABASE_URI
-from .models import Counter, DatabaseConnectionError
+from service.models import Counter, DatabaseConnectionError
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 PORT = os.getenv("PORT", "8080")
@@ -34,7 +35,7 @@ PORT = os.getenv("PORT", "8080")
 @app.route("/health")
 def health():
     """Health Status"""
-    return jsonify(dict(status="OK")), status.HTTP_200_OK
+    return {"status": "OK"}, status.HTTP_200_OK
 
 
 ############################################################
@@ -59,6 +60,7 @@ def index():
 def list_counters():
     """List counters"""
     app.logger.info("Request to list all counters...")
+    counters = []
     try:
         counters = Counter.all()
     except DatabaseConnectionError as err:
@@ -145,18 +147,3 @@ def delete_counters(name):
         abort(status.HTTP_503_SERVICE_UNAVAILABLE, err)
 
     return "", status.HTTP_204_NO_CONTENT
-
-
-############################################################
-#  U T I L I T Y   F U N C I O N S
-############################################################
-
-@app.before_first_request
-def init_db():
-    """Initialize the database"""
-    try:
-        app.logger.info("Initializing the Redis database")
-        Counter.connect(DATABASE_URI)
-        app.logger.info("Connected!")
-    except DatabaseConnectionError as err:
-        app.logger.error(str(err))

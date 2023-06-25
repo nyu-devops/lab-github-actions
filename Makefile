@@ -5,6 +5,8 @@ help: ## Display this help
 
 all: help
 
+##@ Development
+
 venv: ## Create a Python virtual environment
 	$(info Creating Python 3 virtual environment...)
 	python3 -m venv .venv
@@ -15,13 +17,15 @@ install: ## Install dependencies
 
 lint: ## Run the linter
 	$(info Running linting...)
-	flake8 service --count --select=E9,F63,F7,F82 --show-source --statistics
-	flake8 service --count --max-complexity=10 --max-line-length=127 --statistics
-	pylint service --max-line-length=127
+	flake8 service tests --count --select=E9,F63,F7,F82 --show-source --statistics
+	flake8 service tests --count --max-complexity=10 --max-line-length=127 --statistics
+	pylint service tests --max-line-length=127
 
 test: ## Run the unit tests
 	$(info Running tests...)
-	nosetests --with-spec --spec-color
+	green -vvv --processes=1 --run-coverage --termcolor --minimum-coverage=95
+
+##@ Runtime
 
 run: ## Run the service
 	$(info Starting service...)

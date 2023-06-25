@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016, 2022 John J. Rofrano. All Rights Reserved.
+# Copyright 2016, 2023 John J. Rofrano. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# pylint: disable=disallowed-name
 """
 Test cases for Counter Model
 
@@ -23,9 +24,9 @@ Test cases can be run with the following:
 import os
 import logging
 from unittest import TestCase
-from unittest.mock import patch
-from redis.exceptions import ConnectionError
-from service.models import Counter, DatabaseConnectionError
+# from unittest.mock import patch
+from wsgi import app
+from service.models import Counter
 
 DATABASE_URI = os.getenv("DATABASE_URI", "redis://:@localhost:6379/0")
 
@@ -41,18 +42,19 @@ class CounterTests(TestCase):
     @classmethod
     def setUpClass(cls):
         """Run before all tests"""
-        # Counter.connect(DATABASE_URI)
+        app.config["TESTING"] = True
+        app.config["DEBUG"] = False
+        # app.config["REDIS_URL"] = DATABASE_URI
+        app.logger.setLevel(logging.CRITICAL)
 
     def setUp(self):
         """This runs before each test"""
-        Counter.connect(DATABASE_URI)
         Counter.remove_all()
         self.counter = Counter()
 
     def tearDown(self):
         """This runs after each test"""
-        # Counter.redis.flushall()
-        pass
+        # Counter.remove_all()
 
     ######################################################################
     #  T E S T   C A S E S
@@ -133,14 +135,3 @@ class CounterTests(TestCase):
         counter = Counter.find("hits")
         counter.increment()
         self.assertEqual(counter.value, 2)
-
-    @patch("redis.Redis.ping")
-    def test_no_connection(self, ping_mock):
-        """It should Handle a failed connection"""
-        ping_mock.side_effect = ConnectionError()
-        self.assertRaises(DatabaseConnectionError, self.counter.connect, DATABASE_URI)
-
-    @patch.dict(os.environ, {"DATABASE_URI": ""})
-    def test_missing_environment_creds(self):
-        """It should detect Missing environment credentials"""
-        self.assertRaises(DatabaseConnectionError, self.counter.connect)

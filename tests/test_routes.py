@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2016, 2022 John J. Rofrano. All Rights Reserved.
+# Copyright 2016, 2023 John J. Rofrano. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import os
 import logging
 from unittest import TestCase
 from unittest.mock import patch
-from service import app
+from wsgi import app
 from service.models import Counter, DatabaseConnectionError
 from service.common import status
 
@@ -44,21 +44,19 @@ class ServiceTest(TestCase):
         """This runs once before the entire test suite"""
         app.testing = True
         app.debug = False
+        app.logger.setLevel(logging.CRITICAL)
 
     @classmethod
     def tearDownClass(cls):
         """This runs once after the entire test suite"""
-        pass
 
     def setUp(self):
         """This runs before each test"""
-        Counter.connect(DATABASE_URI)
         Counter.remove_all()
         self.app = app.test_client()
 
     def tearDown(self):
         """This runs after each test"""
-        pass
 
     ######################################################################
     #  T E S T   C A S E S
@@ -140,7 +138,7 @@ class ServiceTest(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_method_not_allowed(self):
-        """It should not allow usuported Methods"""
+        """It should not allow unsupported Methods"""
         resp = self.app.post("/counters")
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
@@ -148,7 +146,7 @@ class ServiceTest(TestCase):
     #  T E S T   E R R O R   H A N D L E R S
     ######################################################################
 
-    @patch("service.routes.Counter.redis.get")
+    @patch("service.redis.get")
     def test_failed_get_request(self, redis_mock):
         """It should handle Error for failed GET"""
         redis_mock.return_value = 0
@@ -173,7 +171,7 @@ class ServiceTest(TestCase):
         resp = self.app.post("/counters/foo")
         self.assertEqual(resp.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
 
-    @patch("service.routes.Counter.redis.keys")
+    @patch("service.redis.keys")
     def test_failed_list_request(self, redis_mock):
         """It should handle Error for failed LIST"""
         redis_mock.return_value = 0
@@ -184,7 +182,7 @@ class ServiceTest(TestCase):
     def test_failed_delete_request(self):
         """It should handle Error for failed DELETE"""
         self.test_create_counter()
-        with patch("service.routes.Counter.redis.get") as redis_mock:
+        with patch("service.redis.get") as redis_mock:
             redis_mock.return_value = 0
             redis_mock.side_effect = DatabaseConnectionError()
             resp = self.app.delete("/counters/foo")

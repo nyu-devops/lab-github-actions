@@ -10,9 +10,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: python:3.9-slim
+    container: python:3.11-slim
 
-    # Requiired services    
+    # Required services    
     services:
       # Label used to access the service container
       redis:
@@ -38,19 +38,19 @@ jobs:
       - name: Linting
         run: |
           # stop the build if there are Python syntax errors or undefined names
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          flake8 service tests --count --select=E9,F63,F7,F82 --show-source --statistics
+          # test for complexity. The GitHub editor is 127 chars wide
+          flake8 service tests --count --max-complexity=10 --max-line-length=127 --statistics
+          # Run pylint to catch other PEP8 errors
+          pylint service tests --max-line-length=127
 
-      - name: Run unit tests with nose
-        run: nosetests
+      - name: Run unit tests with green
+        run: green
         env:
           DATABASE_URI: "redis://redis:6379"
 
       # Uncomment the following 2 lines during hands-on lab
       
       # - name: Upload code coverage
-      #   uses: codecov/codecov-action@v2
-      #   with:
-      #     version: "v0.1.13"      
+      #   uses: codecov/codecov-action@v3.1.4
   
