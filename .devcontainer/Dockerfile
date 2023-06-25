@@ -1,5 +1,5 @@
 # Image for a Python 3 development environment
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 # Add any tools that are needed beyond Python 3.9
 RUN apt-get update && \
@@ -21,7 +21,9 @@ RUN groupadd --gid $USER_GID $USERNAME \
 
 # Set up the Python development environment
 WORKDIR /app
-RUN python -m pip install --upgrade pip wheel
+COPY requirements.txt .
+RUN python -m pip install --upgrade pip wheel && \
+    pip install -r requirements.txt
 
 ENV PORT 8000
 EXPOSE $PORT
