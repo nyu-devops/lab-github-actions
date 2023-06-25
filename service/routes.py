@@ -14,6 +14,7 @@
 # limitations under the License.
 ######################################################################
 
+# pylint: disable=cyclic-import
 """
 Module for Hit Counter Service Routes
 """
@@ -22,7 +23,7 @@ import os
 from flask import jsonify, abort, url_for
 from flask import current_app as app
 from service.common import status  # HTTP Status Codes
-from .models import Counter, DatabaseConnectionError
+from service.models import Counter, DatabaseConnectionError
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 PORT = os.getenv("PORT", "8080")
@@ -59,6 +60,7 @@ def index():
 def list_counters():
     """List counters"""
     app.logger.info("Request to list all counters...")
+    counters = []
     try:
         counters = Counter.all()
     except DatabaseConnectionError as err:

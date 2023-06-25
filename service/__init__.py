@@ -21,7 +21,7 @@ from service import config
 from service.common import log_handlers
 
 # Globally accessible libraries
-# redis = FlaskRedis()
+redis = FlaskRedis(decode_responses=True)
 
 
 ############################################################
@@ -33,12 +33,12 @@ def init_app():
     app.config.from_object(config)
 
     # Initialize Plugins
-    # redis.init_app(app)
+    redis.init_app(app)
 
     with app.app_context():
         # Include our Routes
 
-        # pylint: disable=import-outside-toplevel, unused-import
+        # pylint: disable=import-outside-toplevel, unused-import, cyclic-import
         from service import routes, models
         from service.common import error_handlers
 
@@ -50,13 +50,5 @@ def init_app():
         app.logger.info(70 * "*")
 
         app.logger.info("Service initialized!")
-
-        # Initialize the database
-        try:
-            app.logger.info("Initializing the Redis database")
-            models.Counter.connect(app.config['DATABASE_URI'])
-            app.logger.info("Connected!")
-        except models.DatabaseConnectionError as err:
-            app.logger.error(str(err))
 
         return app
