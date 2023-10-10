@@ -25,8 +25,8 @@ import os
 import logging
 from unittest import TestCase
 # from unittest.mock import patch
-from wsgi import app
 from service.models import Counter
+from wsgi import app
 
 DATABASE_URI = os.getenv("DATABASE_URI", "redis://:@localhost:6379/0")
 

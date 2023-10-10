@@ -4,9 +4,10 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Establish dependencies
-COPY requirements.txt .
-RUN python -m pip install -U pip wheel && \
-    pip install -r requirements.txt
+COPY pyproject.toml poetry.lock ./
+RUN python -m pip install poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --without dev
 
 # Copy source files last because they change the most
 COPY wsgi.py .
