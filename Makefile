@@ -9,11 +9,12 @@ all: help
 
 venv: ## Create a Python virtual environment
 	$(info Creating Python 3 virtual environment...)
-	python3 -m venv .venv
+	poetry config virtualenvs.in-project true
+	poetry shell
 
 install: ## Install dependencies
 	$(info Installing dependencies...)
-	sudo pip install -r requirements.txt
+	poetry install
 
 lint: ## Run the linter
 	$(info Running linting...)
@@ -23,7 +24,7 @@ lint: ## Run the linter
 
 test: ## Run the unit tests
 	$(info Running tests...)
-	green -vvv --processes=1 --run-coverage --termcolor --minimum-coverage=95
+	pytest --pspec --cov=service --cov-fail-under=95
 
 ##@ Runtime
 

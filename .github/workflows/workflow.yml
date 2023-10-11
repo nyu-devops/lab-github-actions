@@ -32,8 +32,9 @@ jobs:
             
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip wheel
-          pip install -r requirements.txt
+          python -m pip install poetry
+          poetry config virtualenvs.create false
+          poetry install
 
       - name: Linting
         run: |
@@ -44,8 +45,8 @@ jobs:
           # Run pylint to catch other PEP8 errors
           pylint service tests --max-line-length=127
 
-      - name: Run unit tests with green
-        run: green
+      - name: Run unit tests with PyTest
+        run: pytest --pspec --cov=service --cov-fail-under=95
         env:
           DATABASE_URI: "redis://redis:6379"
 
