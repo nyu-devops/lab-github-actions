@@ -1,6 +1,6 @@
 # lab-github-actions
 
-[![Build Status](https://github.com/nyu-devops/lab-github-actions/actions/workflows/workflow.yml/badge.svg)](https://github.com/nyu-devops/lab-github-actions/actions)
+[![Build Status](https://github.com/KimHe-RGB/lab-github-actions/actions/workflows/workflow.yml/badge.svg)](https://github.com/KimHe-RGB/lab-github-actions/actions)
 
 This is for NYU DevOps lab on using GitHub Actions with Redis for Continuous Integration
 
@@ -29,7 +29,7 @@ It is a good idea to add VSCode to your path so that you can invoke it from the 
 Then you can start your development environment up with:
 
 ```bash
-    git clone https://github.com/nyu-devops/lab-github-actions.git
+    git clone https://github.com/KimHe-RGB/lab-github-actions.git
     cd lab-github-actions
     code .
 ```
