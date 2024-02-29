@@ -1,9 +1,10 @@
 """
 Web Server Gateway Interface (WSGI) entry point
 """
-from service import init_app
 
-app = init_app()
+from service import create_app
+
+app = create_app()
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host="0.0.0.0")

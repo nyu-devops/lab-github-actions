@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "lab-github-actions"
+name = "service"
 version = "0.1.0"
 description = "NYU DevOps Lab for learning GitHub Actions"
 authors = ["John Rofrano <johnnyroy@johnrofrano.com>"]
