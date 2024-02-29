@@ -27,7 +27,7 @@ redis = FlaskRedis(decode_responses=True)
 ############################################################
 # Initialize the Flask instance
 ############################################################
-def init_app():
+def create_app():
     """Initialize the core application."""
     app = Flask(__name__)
     app.config.from_object(config)
