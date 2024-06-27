@@ -51,8 +51,11 @@ jobs:
         env:
           DATABASE_URI: "redis://redis:6379"
 
-      # Uncomment the following 2 lines during hands-on lab
+      # Create a CODECOV_TOKEN in Settings->Secrets and variables->Actions
+      # and then uncomment the following 4 lines during hands-on lab
       
-      # - name: Upload code coverage
+      # - name: Upload coverage reports to Codecov
       #   uses: codecov/codecov-action@v3.1.4
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }} 
   
