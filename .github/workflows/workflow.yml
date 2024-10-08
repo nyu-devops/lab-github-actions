@@ -47,13 +47,13 @@ jobs:
           pylint service tests --max-line-length=127
 
       - name: Run unit tests with PyTest
-        run: pytest --pspec --cov=service --cov-fail-under=95
+        run: pytest --pspec --cov=service --cov-report=xml --cov-fail-under=95
         env:
           DATABASE_URI: "redis://redis:6379"
 
       # Create a CODECOV_TOKEN in Settings->Secrets and variables->Actions
-      # and then uncomment the following 4 lines during hands-on lab
-      
+      # and then uncomment the CodeCov action during hands-on lab
+
       # - name: Upload coverage reports to Codecov
       #   uses: codecov/codecov-action@v3.1.4
       #   with:
