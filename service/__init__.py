@@ -20,6 +20,8 @@ from flask_redis import FlaskRedis
 from service import config
 from service.common import log_handlers
 
+__version__ = "1.0.0"
+
 # Globally accessible libraries
 redis = FlaskRedis(decode_responses=True)
 
@@ -46,7 +48,7 @@ def create_app():
         log_handlers.init_logging(app, "gunicorn.error")
 
         app.logger.info(70 * "*")
-        app.logger.info("  H I T   C O U N T E R   S E R V I C E  ".center(70, "*"))
+        app.logger.info(f"  H I T   C O U N T E R   S E R V I C E  v{__version__}".center(70, "*"))
         app.logger.info(70 * "*")
 
         app.logger.info("Service initialized!")
