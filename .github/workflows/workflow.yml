@@ -54,8 +54,8 @@ jobs:
       # Create a CODECOV_TOKEN in Settings->Secrets and variables->Actions
       # and then uncomment the CodeCov action during hands-on lab
 
-      # - name: Upload coverage reports to Codecov
-      #   uses: codecov/codecov-action@v3.1.4
-      #   with:
-      #     token: ${{ secrets.CODECOV_TOKEN }} 
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3.1.4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} 
   
