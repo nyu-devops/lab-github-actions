@@ -34,7 +34,6 @@ jobs:
         run: |
           python -m pip install poetry
           poetry config virtualenvs.create false
-          poetry lock --no-update
           poetry install
 
       - name: Linting
