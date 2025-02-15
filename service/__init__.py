@@ -48,7 +48,9 @@ def create_app():
         log_handlers.init_logging(app, "gunicorn.error")
 
         app.logger.info(70 * "*")
-        app.logger.info(f"  H I T   C O U N T E R   S E R V I C E  v{__version__}".center(70, "*"))
+        app.logger.info(
+            f"  H I T   C O U N T E R   S E R V I C E  v{__version__}  ".center(70, "*")
+        )
         app.logger.info(70 * "*")
 
         app.logger.info("Service initialized!")
