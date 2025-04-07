@@ -13,7 +13,7 @@
 					"pytest",
 					"Redis",
 					"testdb"
-				],				
+				],	
 				"[python]": {
 					"editor.defaultFormatter": "ms-python.black-formatter",
 					"editor.formatOnSave": true
@@ -50,12 +50,12 @@
 				"tamasfe.even-better-toml",
 				"donjayamanne.githistory",
 				"GitHub.vscode-pull-request-github",
+				"github.vscode-github-actions",
 				"hbenl.vscode-test-explorer",
 				"LittleFoxTeam.vscode-python-test-adapter",
 				"redhat.vscode-yaml",
 				"unjinjang.rest-api-client",
 				"ms-azuretools.vscode-docker",
-				"github.vscode-github-actions",
 				"streetsidesoftware.code-spell-checker",				
 				"bbenoist.vagrant"
 			]
