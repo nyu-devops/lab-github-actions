@@ -54,11 +54,11 @@ jobs:
       # and then uncomment the CodeCov action during hands-on lab
       ######################################################################
 
-      # - name: Install packages for Codecov to work
-      #   run: apt-get update && apt-get install -y git curl gpg
+      - name: Install packages for Codecov to work
+        run: apt-get update && apt-get install -y git curl gpg
 
-      # - name: Upload coverage reports to Codecov
-      #   uses: codecov/codecov-action@v5
-      #   with:
-      #     token: ${{ secrets.CODECOV_TOKEN }}
-      #     slug: nyu-devops/lab-github-actions
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: sjtu-deadpool/lab-github-actions
