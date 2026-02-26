@@ -3,6 +3,7 @@
 [![Build Status](https://github.com/spenserlaier/lab-github-actions/actions/workflows/workflow.yml/badge.svg)](https://github.com/spenserlaier/lab-github-actions/actions)
 
 This is for NYU DevOps lab on using GitHub Actions with Redis for Continuous Integration
+This is an additional line of text intended for use in the actions flow.
 
 ## Introduction
 
