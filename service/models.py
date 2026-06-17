@@ -1,5 +1,5 @@
 ######################################################################
-# Copyright 2016, 2023 John Rofrano. All Rights Reserved.
+# Copyright 2016, 2026 John Rofrano. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ######################################################################
+# cSpell: disable=flushall
 """
 Counter Model
 """
+
 import logging
+from typing import Optional, Self
 from redis.exceptions import ConnectionError as RedisConnectionError
 from service import redis
 
@@ -38,7 +41,7 @@ class Counter:
     This follows the same standards as SQLAlchemy URIs
     """
 
-    def __init__(self, name: str = "hits", value: int = None):
+    def __init__(self, name: str = "hits", value: Optional[int] = None) -> None:
         """Constructor"""
         self.name = name
         if not value:
@@ -47,49 +50,45 @@ class Counter:
             self.value = value
 
     @property
-    def value(self):
+    def value(self) -> int:
         """Returns the current value of the counter"""
         return int(redis.get(self.name))
 
     @value.setter
-    def value(self, value):
+    def value(self, value: int) -> None:
         """Sets the value of the counter"""
         redis.set(self.name, value)
 
     @value.deleter
-    def value(self):
+    def value(self) -> None:
         """Removes the counter fom the database"""
         redis.delete(self.name)
 
-    def increment(self):
+    def increment(self) -> int:
         """Increments the current value of the counter by 1"""
         return redis.incr(self.name)
 
-    def serialize(self):
+    def serialize(self) -> dict[str, str | int]:
         """Converts a counter into a dictionary"""
-        return {
-            "name": self.name,
-            "counter": int(redis.get(self.name))
-        }
+        return {"name": self.name, "counter": int(redis.get(self.name))}
 
     ######################################################################
     #  F I N D E R   M E T H O D S
     ######################################################################
 
     @classmethod
-    def all(cls):
+    def all(cls) -> list:
         """Returns all of the counters"""
         try:
             counters = [
-                {"name": key, "counter": int(redis.get(key))}
-                for key in redis.keys("*")
+                {"name": key, "counter": int(redis.get(key))} for key in redis.keys("*")
             ]
         except Exception as err:
             raise DatabaseConnectionError(err) from err
         return counters
 
     @classmethod
-    def find(cls, name):
+    def find(cls, name) -> Optional[Self]:
         """Finds a counter with the name or returns None"""
         counter = None
         try:
@@ -98,10 +97,10 @@ class Counter:
                 counter = Counter(name, count)
         except Exception as err:
             raise DatabaseConnectionError(err) from err
-        return counter
+        return counter  # type: ignore
 
     @classmethod
-    def remove_all(cls):
+    def remove_all(cls) -> None:
         """Removes all of the keys in the database"""
         try:
             redis.flushall()

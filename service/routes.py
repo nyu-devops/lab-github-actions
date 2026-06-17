@@ -1,5 +1,5 @@
 ######################################################################
-# Copyright 2016, 2023 John J. Rofrano. All Rights Reserved.
+# Copyright 2016, 2026 John J. Rofrano. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,26 +14,25 @@
 # limitations under the License.
 ######################################################################
 
-# pylint: disable=cyclic-import
 """
 Module for Hit Counter Service Routes
 """
 
-import os
-from flask import jsonify, abort, url_for
+from os import getenv
+from flask import jsonify, abort, url_for, Response
 from flask import current_app as app
 from service.common import status  # HTTP Status Codes
 from service.models import Counter, DatabaseConnectionError
 
-DEBUG = os.getenv("DEBUG", "False") == "True"
-PORT = os.getenv("PORT", "8080")
+DEBUG = getenv("DEBUG", "False") == "True"
+PORT = getenv("PORT", "8080")
 
 
 ############################################################
 # Health Endpoint
 ############################################################
 @app.route("/health")
-def health():
+def health() -> tuple[dict, int]:
     """Health Status"""
     return {"status": "OK"}, status.HTTP_200_OK
 
@@ -42,14 +41,17 @@ def health():
 # Index page
 ############################################################
 @app.route("/")
-def index():
+def index() -> tuple[Response, int]:
     """Root URL"""
     app.logger.info("Request for Base URL")
-    return jsonify(
-        status=status.HTTP_200_OK,
-        message="Hit Counter Service",
-        version="1.0.0",
-        url=url_for("list_counters", _external=True),
+    return (
+        jsonify(
+            status=status.HTTP_200_OK,
+            message="Hit Counter Service",
+            version="1.0.0",
+            url=url_for("list_counters", _external=True),
+        ),
+        status.HTTP_200_OK,
     )
 
 
@@ -57,7 +59,7 @@ def index():
 # List counters
 ############################################################
 @app.route("/counters", methods=["GET"])
-def list_counters():
+def list_counters() -> tuple[list[Counter], int]:
     """List counters"""
     app.logger.info("Request to list all counters...")
     counters = []
@@ -66,14 +68,14 @@ def list_counters():
     except DatabaseConnectionError as err:
         abort(status.HTTP_503_SERVICE_UNAVAILABLE, err)
 
-    return jsonify(counters)
+    return counters, status.HTTP_200_OK
 
 
 ############################################################
 # Read counters
 ############################################################
 @app.route("/counters/<name>", methods=["GET"])
-def read_counters(name):
+def read_counters(name: str) -> tuple[dict, int]:
     """Read a counter"""
     app.logger.info("Request to Read counter: %s...", name)
 
@@ -86,20 +88,20 @@ def read_counters(name):
         abort(status.HTTP_404_NOT_FOUND, f"Counter {name} does not exist")
 
     app.logger.info("Returning: %d...", counter.value)
-    return jsonify(counter.serialize())
+    return counter.serialize(), status.HTTP_200_OK
 
 
 ############################################################
 # Create counter
 ############################################################
 @app.route("/counters/<name>", methods=["POST"])
-def create_counters(name):
+def create_counters(name: str) -> tuple[dict, int, dict]:
     """Create a counter"""
     app.logger.info("Request to Create counter...")
     try:
         counter = Counter.find(name)
         if counter is not None:
-            return jsonify(code=409, error="Counter already exists"), 409
+            abort(status.HTTP_409_CONFLICT, f"Counter '{name}' already exists")
 
         counter = Counter(name)
     except DatabaseConnectionError as err:
@@ -107,7 +109,7 @@ def create_counters(name):
 
     location_url = url_for("read_counters", name=name, _external=True)
     return (
-        jsonify(counter.serialize()),
+        counter.serialize(),
         status.HTTP_201_CREATED,
         {"Location": location_url},
     )
@@ -117,7 +119,7 @@ def create_counters(name):
 # Update counters
 ############################################################
 @app.route("/counters/<name>", methods=["PUT"])
-def update_counters(name):
+def update_counters(name: str) -> tuple[Response, int]:
     """Update a counter"""
     app.logger.info("Request to Update counter...")
     try:
@@ -129,14 +131,14 @@ def update_counters(name):
     except DatabaseConnectionError as err:
         abort(status.HTTP_503_SERVICE_UNAVAILABLE, err)
 
-    return jsonify(name=name, counter=count)
+    return jsonify(name=name, counter=count), status.HTTP_200_OK
 
 
 ############################################################
 # Delete counters
 ############################################################
 @app.route("/counters/<name>", methods=["DELETE"])
-def delete_counters(name):
+def delete_counters(name: str) -> tuple[dict, int]:
     """Delete a counter"""
     app.logger.info("Request to Delete counter...")
     try:
@@ -146,4 +148,4 @@ def delete_counters(name):
     except DatabaseConnectionError as err:
         abort(status.HTTP_503_SERVICE_UNAVAILABLE, err)
 
-    return "", status.HTTP_204_NO_CONTENT
+    return {}, status.HTTP_204_NO_CONTENT
