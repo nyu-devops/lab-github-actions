@@ -13,13 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ######################################################################
-# cSpell: flushall
+# cSpell: disable=flushall
 """
 Counter Model
 """
 
 import logging
-from typing import Optional
+from typing import Optional, Self
 from redis.exceptions import ConnectionError as RedisConnectionError
 from service import redis
 
@@ -88,7 +88,7 @@ class Counter:
         return counters
 
     @classmethod
-    def find(cls, name) -> Optional["Counter"]:
+    def find(cls, name) -> Optional[Self]:
         """Finds a counter with the name or returns None"""
         counter = None
         try:
@@ -97,7 +97,7 @@ class Counter:
                 counter = Counter(name, count)
         except Exception as err:
             raise DatabaseConnectionError(err) from err
-        return counter
+        return counter  # type: ignore
 
     @classmethod
     def remove_all(cls) -> None:
