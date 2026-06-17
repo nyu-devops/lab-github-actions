@@ -1,5 +1,5 @@
 ######################################################################
-# Copyright 2016, 2023 John J. Rofrano. All Rights Reserved.
+# Copyright 2016, 2026 John J. Rofrano. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ def list_counters():
     except DatabaseConnectionError as err:
         abort(status.HTTP_503_SERVICE_UNAVAILABLE, err)
 
-    return jsonify(counters)
+    return counters
 
 
 ############################################################
@@ -86,7 +86,7 @@ def read_counters(name):
         abort(status.HTTP_404_NOT_FOUND, f"Counter {name} does not exist")
 
     app.logger.info("Returning: %d...", counter.value)
-    return jsonify(counter.serialize())
+    return counter.serialize()
 
 
 ############################################################
@@ -107,7 +107,7 @@ def create_counters(name):
 
     location_url = url_for("read_counters", name=name, _external=True)
     return (
-        jsonify(counter.serialize()),
+        counter.serialize(),
         status.HTTP_201_CREATED,
         {"Location": location_url},
     )
